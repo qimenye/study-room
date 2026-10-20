@@ -1,0 +1,417 @@
+可以，我把上面所有内容整理成一份完整的 Markdown 文件。你可以直接复制保存为 `自习室项目总结.md`。
+
+```markdown
+# 线上自习室项目 · 功能与框架结构总结
+
+> 一个基于 Python FastAPI + Vue 3 的线上虚拟自习室，结合 AI 智能体做学习陪伴。
+
+---
+
+## 目录
+
+- [一、项目定位](#一项目定位)
+- [二、功能清单](#二功能清单)
+- [三、技术栈总览](#三技术栈总览)
+- [四、系统架构图](#四系统架构图)
+- [五、后端目录结构](#五后端目录结构fastapi)
+- [六、前端目录结构](#六前端目录结构vue-3)
+- [七、核心接口清单](#七核心接口清单)
+- [八、数据模型](#八数据模型)
+- [九、开发排期](#九开发排期个人业余)
+- [十、关键避坑点](#十关键避坑点)
+- [十一、MVP 最小闭环](#十一mvp-最小闭环)
+- [十二、项目亮点总结](#十二项目亮点总结)
+
+---
+
+## 一、项目定位
+
+| 项目 | 说明 |
+|------|------|
+| 类型 | 线上虚拟自习室（网页端） |
+| 开发方式 | 个人开发，前后端分离 |
+| 后端语言 | Python（FastAPI） |
+| 特色 | 结合 AI 智能体，做学习陪伴与报告 |
+| 付费 | 无，纯免费项目 |
+| 目标 | 跑通"进房间 → 一起专注 → 记录 → 监督"闭环 |
+
+---
+
+## 二、功能清单
+
+### 🟢 第一阶段：MVP（核心闭环）
+
+#### 1. 用户系统
+- 注册 / 登录（用户名 + 密码）
+- JWT 认证
+- 个人主页：昵称、头像、累计学习时长
+
+#### 2. 虚拟自习室
+- 房间列表：房间名、主题、在线人数、专注人数
+- 创建房间：房间名、主题标签、人数上限
+- 加入 / 离开房间
+- 房间内成员列表 + 实时状态（专注中 / 休息 / 离开）
+- 简单 2D 虚拟座位图（每人一个头像占位）
+
+#### 3. 专注计时
+- 番茄钟（25/5）和正计时两种模式
+- 开始 / 暂停 / 结束
+- 状态实时同步到房间
+- 用 Web Worker 防止切标签页被节流
+
+#### 4. 白噪音
+- 3~5 种音效（雨声、咖啡馆、图书馆、海浪）
+- Web Audio API 循环播放，可调音量
+
+#### 5. 学习记录
+- 今日 / 本周 / 本月时长统计
+- 日历热力图
+- 专注次数、最长专注时长
+
+#### 6. 排行榜
+- 今日榜 / 本周榜
+
+---
+
+### 🟡 第二阶段：增强体验
+
+#### 7. 好友系统
+- 添加好友、查看好友在线状态
+
+#### 8. 学习小组 / 战队
+- 组队打卡，团队总时长 PK
+
+#### 9. 动态广场
+- 发布学习状态、目标达成
+
+#### 10. 成就徽章
+- 连续打卡、累计时长里程碑
+
+#### 11. 桌面通知
+- 番茄钟结束提醒、目标未完成提醒
+
+---
+
+### 🔵 第三阶段：AI 智能体（项目亮点）
+
+#### 12. 学习陪伴 Agent
+- 进入房间主动打招呼、设定目标
+- 专注过程中适时鼓励
+- 结束时总结 + 正向反馈
+
+#### 13. 智能学习报告 Agent
+- 每周自动生成学习分析
+- 分析专注时段、效率趋势
+- 给出改进建议
+
+#### 14. 学习计划 Agent
+- 用户输入目标（如"3 个月考研"）
+- 拆解成周计划、日任务
+- 追踪进度、动态调整
+
+#### 15. 房间氛围 Agent
+- 欢迎新成员、维护秩序
+- 根据主题推荐白噪音
+- 冷场时提醒专注
+
+#### 16. 智能匹配 Agent
+- 根据习惯、目标推荐房间和队友
+
+---
+
+### 🔴 暂不做的功能（受网页端限制）
+
+| 功能 | 原因 |
+|------|------|
+| 锁机 / 防玩手机 | 浏览器做不到 |
+| 门禁 / 硬件联动 | 线上项目无硬件 |
+| 会员付费 | 项目定位免费 |
+
+---
+
+## 三、技术栈总览
+
+### 前端
+```
+框架：Vue 3 + Vite
+状态：Pinia
+路由：Vue Router
+样式：Tailwind CSS
+实时：WebSocket 原生 / Socket.IO 客户端
+音频：Web Audio API
+计时：Web Worker
+```
+
+### 后端
+```
+框架：FastAPI
+服务器：Uvicorn
+ORM：SQLAlchemy
+校验：Pydantic
+认证：python-jose（JWT）+ passlib（密码加密）
+实时：FastAPI 原生 WebSocket
+```
+
+### 数据库 & 缓存
+```
+主库：PostgreSQL
+缓存：Redis（房间状态、在线用户、Agent 对话记忆）
+```
+
+### AI 智能体
+```
+框架：LangChain（进阶）/ 直接调 API（初期）
+LLM：DeepSeek / 通义千问 / 智谱 GLM（国内便宜）
+     或 OpenAI GPT-4o-mini
+本地：Ollama（可选，完全免费）
+```
+
+### 部署
+```
+前端：Vercel / Nginx
+后端：Railway / Render / 云服务器 + Uvicorn
+数据库：Supabase / Railway PostgreSQL
+Redis：Upstash（免费额度）
+```
+
+---
+
+## 四、系统架构图
+
+```
+┌─────────────────────────────────────────────┐
+│  前端（Vue 3 + Vite）                        │
+│  ├─ 登录注册页                               │
+│  ├─ 房间列表页                               │
+│  ├─ 房间内页（成员、计时、白噪音）           │
+│  ├─ 学习记录页（热力图、统计）               │
+│  ├─ 排行榜页                                 │
+│  └─ AI 助手页                                │
+└──────────────┬──────────────────────────────┘
+               │ HTTP (REST) + WebSocket
+┌──────────────▼──────────────────────────────┐
+│  后端（FastAPI）                             │
+│  ├─ REST API                                 │
+│  │   ├─ /api/auth      认证                  │
+│  │   ├─ /api/rooms     房间                  │
+│  │   ├─ /api/sessions  专注记录              │
+│  │   ├─ /api/ranking   排行榜                │
+│  │   └─ /api/agent     智能体                │
+│  ├─ WebSocket                                │
+│  │   └─ /ws/room/{id}  房间实时状态          │
+│  └─ Agent 服务                               │
+│      ├─ 学习陪伴                             │
+│      ├─ 学习报告                             │
+│      └─ 学习计划                             │
+└──────┬──────────────┬──────────────┬────────┘
+       │              │              │
+       ▼              ▼              ▼
+  PostgreSQL       Redis         LLM API
+  （用户/房间/     （房间状态/    （DeepSeek/
+   记录）          对话记忆）      通义千问）
+```
+
+---
+
+## 五、后端目录结构（FastAPI）
+
+```
+backend/
+├── app/
+│   ├── main.py                 # 入口，注册路由和 WebSocket
+│   ├── config.py               # 配置（读取 .env）
+│   ├── database.py             # 数据库连接
+│   │
+│   ├── models/                 # SQLAlchemy 模型
+│   │   ├── user.py
+│   │   ├── room.py
+│   │   ├── room_member.py
+│   │   └── study_session.py
+│   │
+│   ├── schemas/                # Pydantic 模型
+│   │   ├── user.py
+│   │   ├── room.py
+│   │   └── session.py
+│   │
+│   ├── api/                    # REST 路由
+│   │   ├── auth.py             # 注册/登录
+│   │   ├── rooms.py            # 房间 CRUD
+│   │   ├── sessions.py         # 专注记录
+│   │   ├── ranking.py          # 排行榜
+│   │   └── agents.py           # 智能体接口
+│   │
+│   ├── websocket/              # WebSocket 逻辑
+│   │   └── room_manager.py     # 房间连接管理
+│   │
+│   ├── agents/                 # 智能体
+│   │   ├── companion.py        # 学习陪伴
+│   │   ├── report.py           # 学习报告
+│   │   └── planner.py          # 学习计划
+│   │
+│   └── core/
+│       ├── security.py         # JWT、密码加密
+│       └── deps.py             # 依赖注入
+│
+├── requirements.txt
+└── .env
+```
+
+---
+
+## 六、前端目录结构（Vue 3）
+
+```
+frontend/
+├── src/
+│   ├── main.js
+│   ├── App.vue
+│   │
+│   ├── api/                    # HTTP 请求封装
+│   │   ├── auth.js
+│   │   ├── rooms.js
+│   │   ├── sessions.js
+│   │   └── agent.js
+│   │
+│   ├── socket/                 # WebSocket 封装
+│   │   └── roomSocket.js
+│   │
+│   ├── stores/                 # Pinia 状态
+│   │   ├── user.js
+│   │   ├── room.js
+│   │   └── timer.js
+│   │
+│   ├── router/
+│   │   └── index.js
+│   │
+│   ├── pages/                  # 页面
+│   │   ├── Login.vue
+│   │   ├── RoomList.vue
+│   │   ├── RoomDetail.vue
+│   │   ├── Records.vue
+│   │   ├── Ranking.vue
+│   │   └── Agent.vue
+│   │
+│   ├── components/             # 组件
+│   │   ├── RoomCard.vue
+│   │   ├── MemberSeat.vue
+│   │   ├── PomodoroTimer.vue
+│   │   ├── WhiteNoise.vue
+│   │   ├── Heatmap.vue
+│   │   └── AgentChat.vue
+│   │
+│   ├── workers/
+│   │   └── timerWorker.js      # 防节流计时
+│   │
+│   └── assets/
+│       └── sounds/             # 白噪音音频
+│
+├── package.json
+└── vite.config.js
+```
+
+---
+
+## 七、核心接口清单
+
+### REST API
+```
+POST   /api/auth/register      注册
+POST   /api/auth/login         登录
+GET    /api/users/me           当前用户信息
+
+GET    /api/rooms              房间列表
+POST   /api/rooms              创建房间
+GET    /api/rooms/:id          房间详情
+DELETE /api/rooms/:id          删除房间
+
+POST   /api/sessions/start     开始专注
+POST   /api/sessions/end       结束专注
+GET    /api/sessions/records   学习记录
+GET    /api/sessions/heatmap   热力图数据
+
+GET    /api/ranking            排行榜
+
+POST   /api/agent/encourage    获取鼓励语
+GET    /api/agent/report       学习报告
+POST   /api/agent/plan         生成学习计划
+```
+
+### WebSocket 事件
+```
+客户端 → 服务端：
+  join_room        加入房间
+  leave_room       离开房间
+  status_change    状态变化（专注/休息/离开）
+
+服务端 → 客户端：
+  member_joined    有人加入
+  member_left      有人离开
+  status_change    成员状态更新
+  room_stats       房间统计更新
+```
+
+---
+
+## 八、数据模型
+
+```
+User
+  id, username, password_hash, nickname, avatar,
+  total_duration, created_at
+
+Room
+  id, name, topic, owner_id, max_users, created_at
+
+RoomMember
+  id, room_id, user_id, status, joined_at
+
+StudySession
+  id, user_id, room_id, mode, start_time,
+  end_time, duration, created_at
+
+AgentMessage（可选，也可存 Redis）
+  id, user_id, role, content, created_at
+``
+---
+
+## 十、关键避坑点
+
+| 坑 | 解决方案 |
+|----|----------|
+| 计时不准 | 用 Web Worker + 服务端记录 start_time |
+| 房间状态同步 | 用 WebSocket，不要轮询 |
+| 白噪音版权 | 用 Freesound / Pixabay 免费音源 |
+| 连麦复杂度高 | MVP 阶段先不做，用文字状态代替 |
+| 空房间没人 | 做几个官方常驻房间 |
+| CORS 问题 | 后端配好 CORS 中间件 |
+| WebSocket 部署 | 用支持长连接的服务，Nginx 配 timeout |
+| LLM 成本 | 用 DeepSeek / 通义千问，便宜 |
+| Agent 记忆 | 用 Redis 存对话历史 |
+
+---
+
+## 十一、MVP 最小闭环
+
+```
+注册登录 
+  → 进入房间列表 
+  → 加入房间 
+  → 看到其他成员头像和状态 
+  → 点开始专注 
+  → 番茄钟倒计时 + 白噪音 
+  → 结束后记录时长 
+  → 房间状态更新 
+  → 排行榜看到自己 
+  → AI 助手给一句鼓励
+```
+
+## 十二、项目亮点总结
+
+| 亮点 | 说明 |
+|------|------|
+| 前后端分离 | 结构清晰，易维护 |
+| Python 后端 | FastAPI 异步、WebSocket 原生支持 |
+| AI 智能体 | 学习陪伴 + 报告 + 计划，差异化 |
+| 实时同步 | WebSocket 房间状态秒级更新 |
+| 免费部署 | Vercel + Railway + Supabase 免费额度 |
+| 可扩展 | 后续可加好友、小组、成就 |
